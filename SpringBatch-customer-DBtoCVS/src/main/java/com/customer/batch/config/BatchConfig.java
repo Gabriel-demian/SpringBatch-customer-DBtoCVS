@@ -1,6 +1,11 @@
 package com.customer.batch.config;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 import javax.sql.DataSource;
 
 import org.springframework.batch.core.Job;
@@ -17,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 import com.customer.batch.model.Customer;
 import com.customer.batch.processor.CustomerItemProcessor;
@@ -51,19 +59,45 @@ public class BatchConfig {
 		return new CustomerItemProcessor();
 	}
 	
+	
+	Date now = new Date(); // java.util.Date, NOT java.sql.Date or java.sql.Timestamp!
+	String format1 = new SimpleDateFormat("yyyy-MM-dd'-'HH-mm-ss-SSS", Locale.ENGLISH).format(now);
+	private Resource outputResource = new FileSystemResource("output/customers_" + format1 + ".csv");
+	
+	
+	
 	@Bean
 	public FlatFileItemWriter<Customer> writer(){
-		FlatFileItemWriter<Customer> writer = new FlatFileItemWriter<>();
-		writer.setResource(new ClassPathResource("customers.csv"));
 		
+		//Create writer instance
+		FlatFileItemWriter<Customer> writer = new FlatFileItemWriter<>();
+		
+		//Set output file location
+		//writer.setResource(new ClassPathResource("customers.csv"));
+		writer.setResource(outputResource);
+		writer.setAppendAllowed(true);
+		
+		writer.setLineAggregator(new DelimitedLineAggregator<Customer>() {
+            {
+                setDelimiter(",");
+                setFieldExtractor(new BeanWrapperFieldExtractor<Customer>() {
+                    {
+                        setNames(new String[] {"id","firstName","lastName","email"});
+                    }
+                });
+            }
+        });
+		
+		/*
 		DelimitedLineAggregator<Customer> lineAggregator = new DelimitedLineAggregator<Customer>();
 		lineAggregator.setDelimiter(",");
 		
 		BeanWrapperFieldExtractor<Customer>  fieldExtractor = new BeanWrapperFieldExtractor<Customer>();
-		fieldExtractor.setNames(new String[]{"id","first_name","last_name","email"});
+		fieldExtractor.setNames(new String[]{"id","firstName","lastName","email"});
 		lineAggregator.setFieldExtractor(fieldExtractor);
 		
 		writer.setLineAggregator(lineAggregator);
+		*/
 		return writer;
 	}
 	

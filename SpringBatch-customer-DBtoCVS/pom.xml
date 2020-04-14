@@ -45,6 +45,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/antlr/antlr -->
+		<dependency>
+		    <groupId>antlr</groupId>
+		    <artifactId>antlr</artifactId>
+		    <version>2.7.7</version>
+		</dependency>
 
 	</dependencies>
 

@@ -8,7 +8,9 @@ public class CustomerItemProcessor implements ItemProcessor<Customer, Customer>{
 
 	@Override
 	public Customer process(Customer customer) throws Exception {
-		return null;
+		
+		System.out.println(customer.toString());
+		return customer;
 	}
 	
 	
